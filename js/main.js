@@ -87,7 +87,7 @@ class MainScene extends Phaser.Scene {
         this.map.filterObjects("Objects", function (value, index, array) {        
             if(value.name == "Ghost") {
                 var x = value.x + this.offset;
-                var y = value.y + this.offset;
+                var y = value.y - this.offset;
                 var i = index % types.length;
                 var ghost = new Ghost(this, x, y, 'pacman', types[i]);
                 this.ghostsGroup.add(ghost);
