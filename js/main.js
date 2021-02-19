@@ -13,50 +13,40 @@ class MainScene extends Phaser.Scene {
         this.createPlayer();
         this.createPills();
         this.createGhosts();
-        this.createScore();
+        this.createUI();
         this.setCollider();
     }
     
     update() {
-        if(!this.player.playing) {
-            for(var ghost of this.ghostsGroup.getChildren()) {
+        for(var ghost of this.ghostsGroup.getChildren()) {
+            if(!this.player.playing) {
                 ghost.freeze();
             }
-        }
-        for(var ghost of this.ghostsGroup.getChildren()) {
             ghost.setDirections(this.getDirection(this.map, this.layer1, ghost));
-        }
-        for(var ghost of this.ghostsGroup.getChildren()) {
             ghost.setTurningPoint(this.getTurningPoint(this.map, ghost));
+            ghost.update();
         }
         
         this.player.setDirections(this.getDirection(this.map, this.layer1, this.player));
         this.player.setTurningPoint(this.getTurningPoint(this.map, this.player));
         this.player.update();
-
-        for(let ghost of this.ghostsGroup.getChildren()) {
-            ghost.update();
-        }
     }
     
     config() {
         this.gridSize = 32;
         this.offset = parseInt(this.gridSize / 2, 10);
-        this.pillsCount = 0;
-
-        this.pillsAte = 0;
-
-        this.graphics = this.add.graphics();
+        this.pillTotal = 0;
+        this.pillCount = 0;
     }
     
     createMap() {
-        this.map = this.make.tilemap({ key: "map", tileWidth: this.gridSize, tileHeight: this.gridSize });
-        var tileset = this.map.addTilesetImage('pacman-tiles');
+        this.map = this.make.tilemap({ key: "map1", tileWidth: this.gridSize, tileHeight: this.gridSize });
+        var tiles = this.map.addTilesetImage('tiles');
         
-        this.layer1 = this.map.createStaticLayer("Layer 1", tileset, 0, 0);
+        this.layer1 = this.map.createStaticLayer("Layer 1", tiles, 0, 0);
         this.layer1.setCollisionByProperty({ collides: true});
         
-        this.layer2 = this.map.createStaticLayer("Layer 2", tileset, 0, 0);
+        this.layer2 = this.map.createStaticLayer("Layer 2", tiles, 0, 0);
         this.layer2.setCollisionByProperty({ collides: true});
     }
     
@@ -65,14 +55,14 @@ class MainScene extends Phaser.Scene {
         var x = point.x + this.offset;
         var y = point.y - this.offset;
         
-        this.player = new Player(this, x, y, 'pacman-spritesheet');
+        this.player = new Player(this, x, y, 'pacman');
         
         this.player.on('animationcomplete', function(animation, frame) {
             if(animation.key == 'die') {
                 if(this.player.life <= 0) {
                     this.gameOver();
                 } else {
-                    this.respawn();
+                    this.restart();
                 }
             }
         }, this);
@@ -85,7 +75,7 @@ class MainScene extends Phaser.Scene {
                 var x = value.x + this.offset;
                 var y = value.y - this.offset;
                 this.pillGroup.create(x, y, 'pill');
-                this.pillsCount++;
+                this.pillTotal++;
             }
         }, this);
     }
@@ -93,29 +83,27 @@ class MainScene extends Phaser.Scene {
     createGhosts() {
         this.ghostsGroup = this.physics.add.group();
         
-        var i = 0;
         var types = ['ghost-blue', 'ghost-orange', 'ghost-white', 'ghost-pink', 'ghost-red'];
         this.map.filterObjects("Objects", function (value, index, array) {        
             if(value.name == "Ghost") {
                 var x = value.x + this.offset;
                 var y = value.y + this.offset;
-
-                var ghost = new Ghost(this, x, y, 'pacman-spritesheet', types[i]);
+                var i = index % types.length;
+                var ghost = new Ghost(this, x, y, 'pacman', types[i]);
                 this.ghostsGroup.add(ghost);
-                i++;
             }
          }, this);
     }
     
-    createScore() {
+    createUI() {
         var scoreText = this.createScoreText();
-        this.scoreText = this.add.text(25, 595, scoreText, {
+        this.scoreText = this.add.text(25, 570, scoreText, {
             font : '18px Open Sans',
             fill : '#ffffff',
         });
         
         var lifeText = this.createLifeText();
-        this.lifeText = this.add.text(630, 595, lifeText, {
+        this.lifeText = this.add.text(630, 570, lifeText, {
             font : '18px Open Sans',
             fill : '#ffffff',
         });
@@ -152,13 +140,14 @@ class MainScene extends Phaser.Scene {
     hitPills(player, pill) {
         pill.disableBody(true, true);
         
-        this.pillsAte++;
-        this.player.score += 10;
+        this.pillCount++;
         
+        this.player.score += 10;
         this.showScore();
         
-        if(this.pillsCount == this.pillsAte) {
-            this.reset();
+        if(this.pillTotal == this.pillCount) {
+            // ゲームクリア
+            this.gameClear();
         }
     }
     
@@ -172,19 +161,27 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    respawn() {
-        this.player.respawn();
+    restart() {
+        this.player.restart();
         for(var ghost of this.ghostsGroup.getChildren()) {
-            ghost.respawn();
+            ghost.restart();
         }
     }
     
-    reset() {
-        this.respawn();
-        for (var pill of this.pillGroup.getChildren()) {
-            pill.enableBody(false, pill.x, pill.y, true, true);
+    gameClear() {
+        this.player.freeze();
+        for(var g of this.ghostsGroup.getChildren()) {
+            g.freeze();
         }
-        this.pillsAte = 0;
+        var x = this.cameras.main.midPoint.x;
+        var y = this.cameras.main.midPoint.y;
+        // ゲームオーバー画像を画面中央に表示
+        var gameoverImage = this.add.image(x, y, 'gameclear');
+        gameoverImage.setDisplaySize(600,450);
+        // 何かキーをクリックするとゲーム再開
+        this.input.keyboard.on('keydown', function(event) {
+            this.scene.start('StartScene');
+        }, this);
     }
     
     gameOver() {

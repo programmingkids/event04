@@ -5,7 +5,7 @@ import MainScene from './main.js';
 var config = {
     type: Phaser.AUTO,
     width: 800,
-    height: 625,
+    height: 600,
     physics: {
         default: 'arcade',
         arcade: {
