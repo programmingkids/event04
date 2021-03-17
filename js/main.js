@@ -22,38 +22,46 @@ class MainScene extends Phaser.Scene {
             if(!this.player.playing) {
                 ghost.freeze();
             }
-            ghost.setDirections(this.getDirection(this.map, this.layer1, ghost));
+            ghost.setDirections(this.getDirection(this.map, this.borderLayer, ghost));
             ghost.setTurningPoint(this.getTurningPoint(this.map, ghost));
             ghost.update();
         }
         
-        this.player.setDirections(this.getDirection(this.map, this.layer1, this.player));
+        this.player.setDirections(this.getDirection(this.map, this.borderLayer, this.player));
         this.player.setTurningPoint(this.getTurningPoint(this.map, this.player));
         this.player.update();
     }
     
     config() {
         this.gridSize = 32;
+        this.rowSize = 18;
+        this.columnSize = 25;
+        this.mapWidth = this.gridSize * this.columnSize;
+        this.mapHeight = this.gridSize * this.rowSize;
+        
         this.offset = parseInt(this.gridSize / 2, 10);
+        
         this.pillTotal = 0;
         this.pillCount = 0;
     }
     
     createMap() {
-        this.map = this.make.tilemap({ key: "map1", tileWidth: this.gridSize, tileHeight: this.gridSize });
-        var tiles = this.map.addTilesetImage('tiles');
+        this.cameras.main.setBackgroundColor('#8B8989');
         
-        this.layer1 = this.map.createStaticLayer("Layer 1", tiles, 0, 0);
-        this.layer1.setCollisionByProperty({ collides: true});
+        this.map = this.make.tilemap({ key: "map2", tileWidth: this.gridSize, tileHeight: this.gridSize });
+        var tiles = this.map.addTilesetImage('map-tiles');
         
-        this.layer2 = this.map.createStaticLayer("Layer 2", tiles, 0, 0);
-        this.layer2.setCollisionByProperty({ collides: true});
+        this.borderLayer = this.map.createStaticLayer("Border", tiles, 0, 0);
+        this.borderLayer.setCollisionByExclusion([-1]);
+        
+        this.gateLayer = this.map.createStaticLayer("Gate", tiles, 0, 0);
+        this.gateLayer.setCollisionByExclusion([-1]);
     }
     
     createPlayer() {
-        var point = this.map.findObject("Objects", obj => obj.name === "Player"); 
-        var x = point.x + this.offset;
-        var y = point.y - this.offset;
+        var object = this.map.findObject("Player", obj => obj.name === "Player"); 
+        var x = object.x + this.offset;
+        var y = object.y + this.offset;
         
         this.player = new Player(this, x, y, 'pacman');
         
@@ -70,10 +78,10 @@ class MainScene extends Phaser.Scene {
     
     createPills() {
         this.pillGroup = this.physics.add.group();
-        this.map.filterObjects("Objects", function (value, index, array) {
+        this.map.filterObjects("Pills", function (value, index, array) {
             if(value.name == "Pill") {
                 var x = value.x + this.offset;
-                var y = value.y - this.offset;
+                var y = value.y + this.offset;
                 this.pillGroup.create(x, y, 'pill');
                 this.pillTotal++;
             }
@@ -81,31 +89,34 @@ class MainScene extends Phaser.Scene {
     }
     
     createGhosts() {
-        this.ghostsGroup = this.physics.add.group();
+        var images = ['ghost-blue', 'ghost-cyan', 'ghost-green', 'ghost-orange', 'ghost-red'];
         
-        var types = ['ghost-blue', 'ghost-orange', 'ghost-white', 'ghost-pink', 'ghost-red'];
-        this.map.filterObjects("Objects", function (value, index, array) {        
-            if(value.name == "Ghost") {
-                var x = value.x + this.offset;
-                var y = value.y - this.offset;
-                var i = index % types.length;
-                var ghost = new Ghost(this, x, y, 'pacman', types[i]);
+        this.ghostsGroup = this.physics.add.group();
+        this.map.filterObjects("Ghosts", function (object, index, array) {
+            if(object.name == "Ghost") {
+                var x = object.x + this.offset;
+                var y = object.y + this.offset;
+                var i = index % images.length;
+                var ghost = new Ghost(this, x, y, images[i]);
                 this.ghostsGroup.add(ghost);
             }
          }, this);
     }
     
     createUI() {
+        var width = this.game.config.width;
+        this.add.rectangle( width/2, this.mapHeight+(this.gridSize/2) , width, this.gridSize, 0x000000);
+        
         var scoreText = this.createScoreText();
-        this.scoreText = this.add.text(25, 570, scoreText, {
+        this.scoreText = this.add.text(200, 580, scoreText, {
             font : '18px Open Sans',
-            fill : '#ffffff',
+            fill : '#ff0000',
         });
         
         var lifeText = this.createLifeText();
-        this.lifeText = this.add.text(630, 570, lifeText, {
+        this.lifeText = this.add.text(500, 580, lifeText, {
             font : '18px Open Sans',
-            fill : '#ffffff',
+            fill : '#ff0000',
         });
     }
     
@@ -128,13 +139,13 @@ class MainScene extends Phaser.Scene {
     }
     
     setCollider() {
-        this.physics.add.collider(this.player, this.layer1);
-        this.physics.add.collider(this.player, this.layer2);
+        this.physics.add.collider(this.player, this.borderLayer);
+        this.physics.add.collider(this.player, this.gateLayer);
         
         this.physics.add.overlap(this.player, this.pillGroup, this.hitPills, null, this);
         this.physics.add.overlap(this.player, this.ghostsGroup, this.hitGhost, null, this);
         
-        this.physics.add.collider(this.ghostsGroup, this.layer1);
+        this.physics.add.collider(this.ghostsGroup, this.borderLayer);
     }
     
     hitPills(player, pill) {

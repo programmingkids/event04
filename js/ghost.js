@@ -1,36 +1,38 @@
 class Ghost extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, image, type) {
+    constructor(scene, x, y, image) {
         super(scene, x, y, image);
         this.scene.add.existing(this);
         this.scene.physics.add.existing(this);
         this.setDisplaySize(28,28);
-        this.setOrigin(0.5);
-
+        
         this.scene = scene;
         this.originalX = x;
         this.originaly = y;
-        this.type = type;
+        this.image = image;
         
         this.config();
         this.createAnimation();
         
-        this.anims.play(this.type, true);
+        this.anims.play(this.image, true);
     }
     
     update() {
         this.setVelocity(this.moveTo.x * this.speed,  this.moveTo.y * this.speed);
         this.turn();
+
+        if(this.x < 0 ) {
+            this.setPosition(this.mapWidth, this.y);
+        } else if(this.x > this.mapWidth) {
+            this.setPosition(0, this.y);
+        }
+        if(this.y < 0) {
+            this.setPosition(this.x, this.mapHeight);
+        } else if(this.y > this.mapHeight) {
+            this.setPosition(this.x, 0);
+        }
     }
     
     config() {
-        this.animationType = {
-            'ghost-blue'   : { start : 0,  end : 1 },
-            'ghost-orange' : { start : 4,  end : 5 },
-            'ghost-white'  : { start : 0,  end : 1 },
-            'ghost-pink'   : { start : 14, end : 15 },
-            'ghost-red'    : { start : 16, end : 17 },
-        };
-
         this.speed = 100;
         this.moveTo = new Phaser.Geom.Point();
         this.safetile = [-1, 19];
@@ -45,18 +47,22 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
         this.turnCount = 0;
         this.turnAtTime = [4, 8, 16, 32, 64];
         this.turnAt = this.rnd.pick(this.turnAtTime);
+
+        this.gridSize = 32;
+        this.rowSize = 18;
+        this.columnSize = 25;
+        this.mapWidth = this.gridSize * this.columnSize;
+        this.mapHeight = this.gridSize * this.rowSize;
     }
     
     createAnimation() {
-        var value = this.animationType[this.type];
-        
         this.scene.anims.create({
-            key: this.type,
-            frames: this.scene.anims.generateFrameNumbers('pacman', { 
-                start: value.start, 
-                end: value.end,
+            key: this.image,
+            frames: this.scene.anims.generateFrameNumbers(this.image, { 
+                start: 0, 
+                end: 1,
             }),
-            frameRate: 10,
+            frameRate: 5,
             repeat: -1
         });
     }

@@ -2221,7 +2221,7 @@
          "imageheight":128,
          "imagewidth":160,
          "margin":0,
-         "name":"tiles",
+         "name":"map",
          "spacing":0,
          "tilecount":20,
          "tileheight":32,

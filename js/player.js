@@ -7,7 +7,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(28, 28);
         // 表示サイズの変更
         this.setDisplaySize(28,28);
-        this.setOrigin(0.5);
         
         // 引数の代入
         this.scene = scene;
@@ -39,12 +38,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocity(this.moveTo.x * this.speed,  this.moveTo.y * this.speed);
         this.turn();
         
-        var width = this.scene.game.config.width;
-        var offset = 32;
-        if(this.x < 0 - offset ) {
-            this.setPosition(width + offset, this.y);
-        } else if(this.x > width + offset) {
-            this.setPosition(0 - offset, this.y);
+        if(this.x < 0 ) {
+            this.setPosition(this.mapWidth, this.y);
+        } else if(this.x > this.mapWidth) {
+            this.setPosition(0, this.y);
+        }
+        if(this.y < 0) {
+            this.setPosition(this.x, this.mapHeight);
+        } else if(this.y > this.mapHeight) {
+            this.setPosition(this.x, 0);
         }
     }
     
@@ -63,25 +65,31 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.opposites = [ null, null, null, null, null, Phaser.DOWN, Phaser.UP, Phaser.RIGHT, Phaser.LEFT ];        
         this.turningPoint = new Phaser.Geom.Point();
         this.moveTo = new Phaser.Geom.Point();
+        
+        this.gridSize = 32;
+        this.rowSize = 18;
+        this.columnSize = 25;
+        this.mapWidth = this.gridSize * this.columnSize;
+        this.mapHeight = this.gridSize * this.rowSize;
     }
     
     createAnimation() {
         this.scene.anims.create({
             key: 'eat',
-            frames: this.scene.anims.generateFrameNumbers('pacman', { start: 9, end: 13 }),
+            frames: this.scene.anims.generateFrameNumbers('pacman', { start: 3, end: 7 }),
             frameRate: 10,
             repeat: -1
         });
     
         this.scene.anims.create({
             key: 'stay',
-            frames: [ { key: 'pacman', frame: 9 } ],
+            frames: [ { key: 'pacman', frame: 3 } ],
             frameRate: 20
         });
     
         this.scene.anims.create({
             key: 'die',
-            frames: this.scene.anims.generateFrameNumbers('pacman', { start: 6, end: 8 }),
+            frames: this.scene.anims.generateFrameNumbers('pacman', { start: 0, end: 2 }),
             frameRate: 5,
         });
     }
@@ -98,6 +106,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     restart() {
         this.isActive = true;
         this.playing = false;
+        this.setFlipX(false);
         this.angle = 0;
         this.setPosition(this.originalX, this.originalY);
         this.moveTo = new Phaser.Geom.Point();
@@ -129,13 +138,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.moveTo.x = -1;
         this.moveTo.y = 0;
         this.anims.play('eat', true);
-        this.angle = 180;
+        this.setFlipX(true);
+        this.angle = 0;
     }
 
     moveRight() {
         this.moveTo.x = 1;
         this.moveTo.y = 0;
         this.anims.play('eat', true);
+        this.setFlipX(false);
         this.angle = 0;
     }
 
@@ -143,13 +154,17 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.moveTo.x = 0;
         this.moveTo.y = -1;
         this.anims.play('eat', true);
-        this.angle = 270;
+
+        this.setFlipX(true);
+        this.angle = -270;
     }
 
     moveDown() {
         this.moveTo.x = 0;
         this.moveTo.y = 1;
         this.anims.play('eat', true);
+
+        this.setFlipX(false);
         this.angle = 90;
     }
     
