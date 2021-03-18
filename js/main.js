@@ -35,9 +35,10 @@ class MainScene extends Phaser.Scene {
             ghost.update();
         }
         // プレイヤーの移動処理
-        this.player.setDirections(this.getDirection(this.map, this.borderLayer, this.player));
-        this.player.setTurningPoint(this.getTurningPoint(this.map, this.player));
-        this.player.update();
+        
+        
+        
+        
     }
     
     config() {
@@ -73,45 +74,22 @@ class MainScene extends Phaser.Scene {
     
     createPlayer() {
         // プレイヤーの作成
-        // マップからプレイヤーのデータ取得
-        var object = this.map.findObject("Player", obj => obj.name === "Player"); 
-        // プレイヤーのX座標
-        var x = object.x + this.offset;
-        // プレイヤーのY座標
-        var y = object.y + this.offset;
-        // プレイヤー作成
-        this.player = new Player(this, x, y, 'pacman');
-        // プレイヤーがゴーストに接触した後の処理
-        this.player.on('animationcomplete', function(animation, frame) {
-            if(animation.key == 'die') {
-                if(this.player.life <= 0) {
-                    // ライフが「0」なのでゲームオーバー
-                    this.gameOver();
-                } else {
-                    // ライフが「0」ではないので、リスタート
-                    this.restart();
-                }
-            }
-        }, this);
+        
+        
+        
+        
+        
     }
     
     createPills() {
         // ピルを作成
         // ピルグループの作成
         this.pillGroup = this.physics.add.group();
-        // マップデータからピルのデータ取得
-        this.map.filterObjects("Pills", function (value, index, array) {
-            if(value.name == "Pill") {
-                // ピルのX座標
-                var x = value.x + this.offset;
-                // ピルのY座標
-                var y = value.y + this.offset;
-                // ピルの作成
-                this.pillGroup.create(x, y, 'pill');
-                // ピルの合計数を加算
-                this.pillTotal++;
-            }
-        }, this);
+        
+        
+        
+        
+        
     }
     
     createGhosts() {
@@ -120,21 +98,12 @@ class MainScene extends Phaser.Scene {
         var images = ['ghost-blue', 'ghost-cyan', 'ghost-green', 'ghost-orange', 'ghost-red'];
         // ゴーストグループの作成
         this.ghostsGroup = this.physics.add.group();
-        // マップデータからゴーストのデータ取得
-        this.map.filterObjects("Ghosts", function (object, index, array) {
-            if(object.name == "Ghost") {
-                // ゴーストのX座標
-                var x = object.x + this.offset;
-                // ゴーストのY座標
-                var y = object.y + this.offset;
-                // ゴーストの画像を配列内のインデックスに収める
-                var i = index % images.length;
-                // ゴーストの作成
-                var ghost = new Ghost(this, x, y, images[i]);
-                // ゴーストをゴーストグループに追加
-                this.ghostsGroup.add(ghost);
-            }
-         }, this);
+        
+        
+        
+        
+        
+        
     }
     
     createUI() {
@@ -144,20 +113,12 @@ class MainScene extends Phaser.Scene {
         // UI部分の背景色を「黒」にする
         this.add.rectangle( width/2, this.mapHeight+(this.gridSize/2) , width, this.gridSize, 0x000000);
         
-        // スコアの文字作成
-        var scoreText = this.createScoreText();
-        // スコアテキストの作成
-        this.scoreText = this.add.text(200, 580, scoreText, {
-            font : '18px Open Sans',
-            fill : '#ff0000',
-        });
-        // ライフの文字作成
-        var lifeText = this.createLifeText();
-        // ライフテキストの作成
-        this.lifeText = this.add.text(500, 580, lifeText, {
-            font : '18px Open Sans',
-            fill : '#ff0000',
-        });
+        
+        
+        
+        
+        
+        
     }
     
     createScoreText() {
@@ -180,49 +141,32 @@ class MainScene extends Phaser.Scene {
     
     setCollider() {
         // 各所衝突設定
-        // プレイヤーとBorderレイヤーの衝突
-        this.physics.add.collider(this.player, this.borderLayer);
-        // プレイヤーとGateレイヤーの衝突
-        this.physics.add.collider(this.player, this.gateLayer);
         
-        // プレイヤーとピルグループの衝突
-        this.physics.add.overlap(this.player, this.pillGroup, this.hitPills, null, this);
-        // プレイヤーとゴーストグループの衝突
-        this.physics.add.overlap(this.player, this.ghostsGroup, this.hitGhost, null, this);
-        // ゴーストグループとBorderレイヤーの衝突
-        this.physics.add.collider(this.ghostsGroup, this.borderLayer);
+        
+        
+        
+        
+        
     }
     
     hitPills(player, pill) {
         // プレイヤーとピルが衝突したときの処理
-        // ピルを非表示にする
-        pill.disableBody(true, true);
-        // ピルの獲得数を加算
-        this.pillCount++;
-        // プレイヤーのスコアを加算
-        this.player.score += 10;
-        // スコアを表示
-        this.showScore();
-        // ピルの合計数と現在のピルの獲得数が一致した場合
-        if(this.pillTotal == this.pillCount) {
-            // ゲームクリア
-            this.gameClear();
-        }
+        
+        
+        
+        
+        
+        
     }
     
     hitGhost(player, ghost) {
         // プレイヤーとゴーストが衝突したときの処理
-        // プレイヤーが移動開始後であれば
-        if(player.isActive) {
-            // プレイヤー敗北
-            player.die();
-            // ゴーストの停止処理
-            for(var g of this.ghostsGroup.getChildren()) {
-                g.freeze();
-            }
-            // ライフを表示
-            this.showLife();
-        }
+        
+        
+        
+        
+        
+        
     }
 
     restart() {
