@@ -140,7 +140,7 @@ class MainScene extends Phaser.Scene {
     }
     
     setCollider() {
-        // 各所衝突設定
+        // 各衝突設定
         
         
         
