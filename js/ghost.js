@@ -1,18 +1,24 @@
 class Ghost extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, image) {
         super(scene, x, y, image);
+        // シーンに追加
         this.scene.add.existing(this);
+        // 物理エンジンの対象に追加
         this.scene.physics.add.existing(this);
+        // 表示サイズ変更
         this.setDisplaySize(28,28);
         
+        // 引数の代入
         this.scene = scene;
         this.originalX = x;
         this.originaly = y;
         this.image = image;
         
+        // 設定を呼び出す
         this.config();
+        // アニメーション作成
         this.createAnimation();
-        
+        // アニメーション開始
         this.anims.play(this.image, true);
     }
     
@@ -33,7 +39,10 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     config() {
+        // 速度
         this.speed = 100;
+        
+        // 以下は移動のためのデータ
         this.moveTo = new Phaser.Geom.Point();
         this.safetile = [-1, 19];
         this.directions = [];
@@ -42,12 +51,12 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
         this.current = Phaser.NONE;
         this.turningPoint = new Phaser.Geom.Point();
         this.threshold = 5;
-        
+        // 以下はランダムに移動するためのデータ
         this.rnd = new Phaser.Math.RandomDataGenerator();
         this.turnCount = 0;
         this.turnAtTime = [4, 8, 16, 32, 64];
         this.turnAt = this.rnd.pick(this.turnAtTime);
-
+        // 以下はマップに関するデータ
         this.gridSize = 32;
         this.rowSize = 18;
         this.columnSize = 25;
@@ -56,6 +65,7 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     createAnimation() {
+        // 移動アニメーション作成
         this.scene.anims.create({
             key: this.image,
             frames: this.scene.anims.generateFrameNumbers(this.image, { 
@@ -68,17 +78,20 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
 
     freeze() {
+        // 停止処理
         this.moveTo = new Phaser.Geom.Point();
         this.current = Phaser.NONE;
     }
 
-    restart() {       
+    restart() {
+        // ゲーム再開処理
         this.setPosition(this.originalX, this.originaly);
         this.move(this.rnd.pick([Phaser.UP, Phaser.DOWN]));
         this.flipX = false;
     }
     
     turn() {
+        // 移動方向転換処理
         if(this.turnCount === this.turnAt) {
             this.takeRandomTurn();            
         }
@@ -101,6 +114,7 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     takeRandomTurn() {
+        // 回転方向をランダムに決定する処理
         var turns = [];
         for (var i=0; i < this.directions.length; i++) {
             var direction = this.directions[i];
@@ -126,6 +140,7 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     move() {
+        // 移動処理
         this.move(this.rnd.pick([Phaser.UP, Phaser.DOWN]));        
     }
     
@@ -156,14 +171,17 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     setDirections(directions) {
+        // 移動可能方向を配列に代入
         this.directions = directions;
     }
 
     setTurningPoint(turningPoint) {
+        // 移動可能座標を配列に代入
         this.turningPoint=turningPoint;
     }
     
     setTurn(turnTo) {
+        // 方向転換のチェック
         if (!this.directions[turnTo] 
             || this.turning === turnTo 
             || this.current === turnTo 
@@ -182,6 +200,7 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
 
     move(direction) {
+        // 移動
         this.current = direction;
         switch(direction) {
             case Phaser.LEFT:
@@ -200,6 +219,7 @@ class Ghost extends Phaser.Physics.Arcade.Sprite {
     }
     
     isSafe(index) {
+        // マップ内で移動可能かどうかの判定
         for (var i of this.safetile) {
             if(i === index) {
                 return true;

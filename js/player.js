@@ -1,7 +1,9 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, image) {
         super(scene, x, y, image);
+        // シーンに追加
         this.scene.add.existing(this);
+        // 物理エンジンの対象に追加
         this.scene.physics.add.existing(this);
         // 衝突範囲サイズの変更
         this.body.setSize(28, 28);
@@ -13,11 +15,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.originalX = x;
         this.originalY = y;
         
-        // 設定
+        // 設定を呼び出す
         this.config();
         // アニメーション作成
         this.createAnimation();
-        // 初期状態設定
+        // アニメーション開始
         this.anims.play('stay', true);
     }
     
@@ -51,12 +53,19 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     config() {
+        // 速度
         this.speed = 100;
+        // スコア
         this.score = 0;
+        // 移動開始しているかどうかのフラグ
         this.isActive = true;
+        // 現在プレイ中かどうかのフラグ
         this.playing = false;
+        // 回転角度
         this.angle = 0;
+        // ライフ
         this.life = 3;
+        // 以下は移動のためのデータ
         this.turning = Phaser.NONE;
         this.current = Phaser.NONE;
         this.threshold = 5;
@@ -65,7 +74,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.opposites = [ null, null, null, null, null, Phaser.DOWN, Phaser.UP, Phaser.RIGHT, Phaser.LEFT ];        
         this.turningPoint = new Phaser.Geom.Point();
         this.moveTo = new Phaser.Geom.Point();
-        
+        // 以下はマップに関するデータ
         this.gridSize = 32;
         this.rowSize = 18;
         this.columnSize = 25;
@@ -74,19 +83,20 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     createAnimation() {
+        // 移動アニメーション
         this.scene.anims.create({
             key: 'eat',
             frames: this.scene.anims.generateFrameNumbers('pacman', { start: 3, end: 7 }),
             frameRate: 10,
             repeat: -1
         });
-    
+        // 停止アニメーション
         this.scene.anims.create({
             key: 'stay',
             frames: [ { key: 'pacman', frame: 3 } ],
             frameRate: 20
         });
-    
+        // 敗北アニメーション
         this.scene.anims.create({
             key: 'die',
             frames: this.scene.anims.generateFrameNumbers('pacman', { start: 0, end: 2 }),
@@ -95,6 +105,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     die() {
+        // 敗北処理
         this.isActive = false;
         this.playing = false;
         this.life--;
@@ -104,6 +115,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     restart() {
+        // ゲーム再開処理
         this.isActive = true;
         this.playing = false;
         this.setFlipX(false);
@@ -117,6 +129,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     freeze() {
+        // 停止処理
         this.isActive = false;
         this.playing = false;
         this.moveTo = new Phaser.Geom.Point();
@@ -127,10 +140,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     setDirections(directions) {
+        // 移動可能方向を配列に代入
         this.directions = directions;
     }
 
     setTurningPoint(turningPoint) {
+        // 移動可能座標を配列に代入
         this.turningPoint = turningPoint;
     }
     
@@ -169,6 +184,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     setTurn(turnTo) {
+        // 方向転換のチェック
         if (!this.isActive ||
             !this.directions[turnTo] || 
             this.turning === turnTo || 
@@ -187,6 +203,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     turn() {
+        // 方向転換
         if(this.turning === Phaser.NONE) {
             return false;
         }
@@ -202,6 +219,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     move(direction) {
+        // 移動
         this.playing = true;
         this.current = direction;
         
@@ -222,6 +240,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     isSafe(index) {
+        // マップ内で移動可能かどうかの判定
         for (var i of this.safetile) {
             if(i===index) {
                 return true;
