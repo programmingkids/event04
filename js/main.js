@@ -48,7 +48,7 @@ class MainScene extends Phaser.Scene {
     createMap() {
         this.cameras.main.setBackgroundColor('#8B8989');
         
-        this.map = this.make.tilemap({ key: "map2", tileWidth: this.gridSize, tileHeight: this.gridSize });
+        this.map = this.make.tilemap({ key: "map1", tileWidth: this.gridSize, tileHeight: this.gridSize });
         var tiles = this.map.addTilesetImage('map-tiles');
         
         this.borderLayer = this.map.createStaticLayer("Border", tiles, 0, 0);

@@ -3,7 +3,7 @@ class LoadScene extends Phaser.Scene {
     constructor() {
         super({key : 'LoadScene'});
     }
-
+    
     preload() {
         // スタート画像
         this.load.image('gamestart', 'assets/images/gamestart.gif');
@@ -11,8 +11,8 @@ class LoadScene extends Phaser.Scene {
         this.load.image('gameover', 'assets/images/gameover.png');
         // ゲームクリア画像
         this.load.image('gameclear', 'assets/images/gameclear.png');
-        
         // マップデータ
+        this.load.tilemapTiledJSON('map1', 'assets/data/map1.json');
         this.load.tilemapTiledJSON('map2', 'assets/data/map2.json');
         // マップ画像
         this.load.image('map-tiles', 'assets/images/map-tiles.png');
