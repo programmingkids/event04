@@ -179,7 +179,7 @@ class MainScene extends Phaser.Scene {
     }
     
     setCollider() {
-        // 各所衝突設定
+        // 各衝突設定
         // プレイヤーとBorderレイヤーの衝突
         this.physics.add.collider(this.player, this.borderLayer);
         // プレイヤーとGateレイヤーの衝突
