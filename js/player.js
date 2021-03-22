@@ -6,9 +6,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // 物理エンジンの対象に追加
         this.scene.physics.add.existing(this);
         // 衝突範囲サイズの変更
-        this.body.setSize(28, 28);
+        this.body.setSize(26, 26);
         // 表示サイズの変更
-        this.setDisplaySize(28,28);
+        this.setDisplaySize(26,26);
         
         // 引数の代入
         this.scene = scene;
