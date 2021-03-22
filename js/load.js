@@ -44,6 +44,11 @@ class LoadScene extends Phaser.Scene {
             frameWidth: 32, 
             frameHeight: 32,
         });
+        // 爆発エフェクト
+        this.load.spritesheet('explosion', 'assets/images/explosion.png', {
+            frameWidth: 192,
+            frameHeight: 192,
+        });
     }
     
     create() {
