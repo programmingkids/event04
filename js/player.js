@@ -209,7 +209,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
         if (!Phaser.Math.Within(this.x, this.turningPoint.x, this.threshold) || 
             !Phaser.Math.Within(this.y, this.turningPoint.y, this.threshold)) {
-            return false;
+            this.setPosition(this.turningPoint.x, this.turningPoint.y);
         }
         this.setPosition(this.turningPoint.x, this.turningPoint.y);
         this.move(this.turning);
